@@ -1,0 +1,79 @@
+// ==UserScript==
+// @name         Time On My Side R2
+// @namespace    http://tampermonkey.net/
+// @version      0.3
+// @description  HOME画面にアナログ時刻表示
+// @author       Ameba Blog User
+// @match        https://www.ameba.jp/home
+// @match        https://blog.ameba.jp/ucs/entry/srventry*
+// @grant        none
+// ==/UserScript==
+
+
+window.addEventListener('load', round_watch);
+
+function round_watch(){
+
+    let inner=
+        '<span class="r_watch_hour"></span>'+ // 時計
+        '<span class="r_watch_min"></span>'+ // 分針
+        '<span class="r_watch_sec"></span>'+ // 秒針
+        '<span class="r_watch_12">●</span>'+ // 時計文字
+        '<span class="r_watch_3">●</span>'+ // 時計文字
+        '<span class="r_watch_6">●</span>'+ // 時計文字
+        '<span class="r_watch_9">●</span>'; // 時計文字
+
+    inner +=
+        '<style>'+
+        '#r_watch { position: fixed; top: 50px; right: 15px; width: 80px; height: 80px; '+
+        'background: #fff; border: 1px solid #f80; border-radius: 50%; z-index: 10; } '+
+        '.r_watch_hour { position: absolute; top: calc(50% - 24px); left: calc(50% - 2px); '+
+        'width: 4px; height: 24px; border-radius: 4px; '+
+        'background: #2196f3; transform-origin: bottom; } '+
+        '.r_watch_min { position: absolute; top: calc(50% - 30px); left: calc(50% - 1px); '+
+        'width: 2px; height: 30px; '+
+        'background: #2196f3; transform-origin: bottom; } '+
+        '.r_watch_sec { position: absolute; top: calc(50% - 36px); left: calc(50% - .5px); '+
+        'width: 1px; height: 36px; '+
+        'background: #ff0000; transform-origin: bottom; } '+
+        '.r_watch_12, .r_watch_3, .r_watch_6, .r_watch_9 { '+
+        'position: absolute; color: #f80; font: normal 10px meiryo; } '+
+        '.r_watch_12 { top: -2px; left: calc(50%); transform: translateX(-50%); } '+
+        '.r_watch_3 { top: 50%; right: 0; transform: translateY(-50%); } '+
+        '.r_watch_6 { bottom: -2px; left: calc(50%); transform: translateX(-50%); } '+
+        '.r_watch_9 { top: 50%; left: 0; transform: translateY(-50%); } '+
+        '</style>';
+
+    let board=document.querySelector('body');
+
+    let watch=document.createElement('div');
+    watch.setAttribute('id', 'r_watch');
+    if(!board.querySelector('#r_watch')){
+        board.appendChild(watch); }
+
+    watch.innerHTML=inner;
+
+    let time_r=setInterval(disp_r_watch, 1000);
+
+    function disp_r_watch(){
+        let now=new Date();
+        get_r(now);
+
+        function get_r(time){
+            let h=time.getHours();
+            let m=time.getMinutes();
+            let s=time.getSeconds();
+
+            let deg_hour=h*(360/12) + m*(360/12/60);
+            let deg_min=m*(360/60);
+            let deg_sec=s*(360/60);
+
+            let r_hour=document.querySelector(".r_watch_hour");
+            let r_min=document.querySelector(".r_watch_min");
+            let r_sec=document.querySelector(".r_watch_sec");
+
+            r_hour.style.transform= `rotate(${deg_hour}deg)`;
+            r_min.style.transform= `rotate(${deg_min}deg)`;
+            r_sec.style.transform= `rotate(${deg_sec}deg)`; }}
+
+} // round_watch()
